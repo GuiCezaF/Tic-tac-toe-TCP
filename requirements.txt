@@ -1,0 +1,3 @@
+# Pacote local; em runtime não há dependências PyPI (apenas stdlib).
+# Requer Python >= 3.12 (ver pyproject.toml).
+-e .

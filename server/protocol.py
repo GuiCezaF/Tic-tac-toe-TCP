@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Literal, TypedDict
+from typing import Any, Literal, NotRequired, TypedDict
 
 
 def encode_line(payload: dict[str, Any]) -> bytes:
@@ -37,7 +37,8 @@ class StateMessage(TypedDict):
     board: list[list[int]]
     current_turn: Literal["X", "O"] | None
     phase: Literal["playing", "finished"]
-    winner: str | None
+    winner: NotRequired[str | None]
+    winner_name: NotRequired[str]
 
 
 class ErrorMessage(TypedDict):

@@ -48,3 +48,5 @@ class GameSnapshot(TypedDict):
     current_turn: Literal["X", "O"] | None
     phase: Literal["playing", "finished"]
     winner: NotRequired[Literal["X", "O", "draw"] | None]
+    # Preenchido só na rede quando phase == "finished" e há vencedor (não em empate).
+    winner_name: NotRequired[str]

@@ -66,10 +66,12 @@ Broadcast após cada jogada **válida** (ambos recebem a mesma mensagem).
 Quando a partida termina:
 
 ```json
-{"type":"state","board":[[1,1,1],[0,2,0],[0,0,0]],"current_turn":null,"phase":"finished","winner":"X"}
+{"type":"state","board":[[1,1,1],[0,2,0],[0,0,0]],"current_turn":null,"phase":"finished","winner":"X","winner_name":"Alice"}
 ```
 
 `winner` pode ser `"X"`, `"O"` ou `"draw"`.
+
+Quando há vencedor (`"X"` ou `"O"`), o servidor inclui **`winner_name`**: o valor de `name` enviado na mensagem `join` pelo jogador vencedor. Em empate (`"draw"`) esse campo **não** é enviado.
 
 ### `error`
 
@@ -93,7 +95,7 @@ O outro jogador fechou a conexão.
 
 1. `socket.create_connection((host, port))` no thread principal ou em thread auxiliar.
 2. Enviar `join` com `\n` no final da string UTF-8.
-3. Loop: ler bytes, acumular até `\n`, `json.loads` na linha, atualizar modelo local (tabuleiro, `current_turn`, `phase`, `winner`).
+3. Loop: ler bytes, acumular até `\n`, `json.loads` na linha, atualizar modelo local (tabuleiro, `current_turn`, `phase`, `winner`, e `winner_name` quando presente).
 4. Desenhar o tabuleiro a partir de `board` e do seu `role` recebido em `game_start`.
 5. No clique: se `current_turn` for o seu `role` e `phase == "playing"`, calcular `(row, col)` e enviar `move`.
 6. Não bloquear o loop de eventos: use thread + fila (`queue.Queue`) ou `asyncio` com integração ao relógio do Pygame.

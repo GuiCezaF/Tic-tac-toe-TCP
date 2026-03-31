@@ -8,6 +8,23 @@ from server.protocol import encode_line
 from server.waiting_player import WaitingPlayer
 
 
+def build_state_broadcast_payload(
+    snap: GameSnapshot, player_names: dict[Mark, str]
+) -> dict[str, object]:
+    """Monta o corpo de `state`.
+
+    Acrescenta `winner_name` apenas se houver vencedor (não em empate).
+    """
+    body: dict[str, object] = {"type": "state", **snap}
+    if snap.get("phase") == "finished":
+        winner = snap.get("winner")
+        if winner == "X":
+            body["winner_name"] = player_names[Mark.X]
+        elif winner == "O":
+            body["winner_name"] = player_names[Mark.O]
+    return body
+
+
 class RemoteGameSession:
     """Isola estado da partida e envia o mesmo snapshot para ambos os clientes."""
 
@@ -17,6 +34,7 @@ class RemoteGameSession:
             Mark.X: first.writer,
             Mark.O: second.writer,
         }
+        self._player_names: dict[Mark, str] = {Mark.X: first.name, Mark.O: second.name}
         self._lock = asyncio.Lock()
         self._closed = False
 
@@ -44,7 +62,7 @@ class RemoteGameSession:
 
     async def _broadcast_state_unlocked(self) -> None:
         snap = self._game.snapshot()
-        body: dict[str, object] = {"type": "state", **snap}
+        body = build_state_broadcast_payload(snap, self._player_names)
         data = encode_line(body)
         for w in self._writers.values():
             w.write(data)
